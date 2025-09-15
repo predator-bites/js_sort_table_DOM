@@ -1,16 +1,22 @@
 'use strict';
 
-const bodyRows = document.querySelectorAll('tbody tr');
 const tbody = document.querySelector('tbody');
 const headers = document.querySelector('thead tr');
 
 headers.addEventListener('click', (e) => {
+  const bodyRows = document.querySelectorAll('tbody tr');
+
   const listToSort = [];
 
   const th = e.target.closest('th');
+
+  if (!th) {
+    return;
+  }
+
   const aimIndx = th?.cellIndex;
 
-  if (aimIndx === -1) {
+  if (typeof aimIndx !== 'number' || aimIndx === -1) {
     return;
   }
 
@@ -18,12 +24,13 @@ headers.addEventListener('click', (e) => {
     const row = bodyRows[i];
 
     if (row.children.length < aimIndx) {
-      return;
+      continue;
     }
 
     listToSort.push({
       aimCell: row.children[aimIndx],
       row: row,
+      originalIndex: i,
     });
   }
 
@@ -44,8 +51,12 @@ headers.addEventListener('click', (e) => {
     } else if (aimIndx === 2) {
       return +elem1.aimCell.textContent - +elem2.aimCell.textContent;
     } else if (aimIndx === 3) {
-      const newElem1 = Number(elem1.aimCell.textContent.replace(/\D/g, ''));
-      const newElem2 = Number(elem2.aimCell.textContent.replace(/\D/g, ''));
+      const newElem1 = Number(
+        elem1.aimCell.textContent.trim().replace(/[^0-9]+/g, ''),
+      );
+      const newElem2 = Number(
+        elem2.aimCell.textContent.trim().replace(/[^0-9]+/g, ''),
+      );
 
       return newElem1 - newElem2;
     }
